@@ -3,6 +3,7 @@ var express = require('express'),
     path = require('path'),
     screenshot = require('./screenshot'),
     app = express(),
+    host = process.env.HOST || 'localhost',
     maxHeight = process.env.MAX_HEIGHT || 1200,
     maxWidth = process.env.MAX_WIDTH || 1600,
     port = process.env.PORT || 3001;
@@ -42,5 +43,5 @@ app.get('/*.png', function(request, response) {
   });
 });
 
-console.log('Reflection listening on port ' + port + '...');
-app.listen(port);
+console.log('Reflection listening on port ' + port);
+app.listen(port, host);
