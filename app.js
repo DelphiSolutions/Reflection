@@ -10,6 +10,7 @@ var express = require('express'),
 ;
 
 app.configure(function() {
+  app.use(express.logger('dev'));
   app.use(app.router);
 });
 
