@@ -31,22 +31,19 @@ function takeScreenshot(args) {
   function onExit(code) {
     if (code !== 0) {
       console.log('PhantomJS process died unexpectedly');
-      response.send(500);
-      return;
+      return response.send(500);
     }
 
     output = JSON.parse(output);
     if ('error' in output) {
       console.log('PhantomJS error: ' + output.error);
-      response.send(500);
-      return;
+      return response.send(500);
     }
 
     fs.readFile(output.file, function(error, data) {
       if (error) {
         console.log('Image file read error: ' + error);
-        response.send(500);
-        return
+        return response.send(500);
       }
 
       console.log('Produced screenshot for URL `' + args.url + '`');
