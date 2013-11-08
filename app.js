@@ -3,7 +3,10 @@ var express = require('express'),
     path = require('path'),
     screenshot = require('./screenshot'),
     app = express(),
+    maxHeight = process.env.MAX_HEIGHT || 1200,
+    maxWidth = process.env.MAX_WIDTH || 1600,
     port = process.env.PORT || 3001;
+;
 
 app.configure(function() {
   app.use(app.router);
@@ -23,10 +26,10 @@ app.get('/*.png', function(request, response) {
     return;
   }
 
-  if (!width || width < 0) {
+  if (!width || width <= 0 || width > maxWidth) {
     width = 960;
   }
-  if (!height || height < 0) {
+  if (!height || height <= 0 || height > maxHeight) {
     height = 640;
   }
 
