@@ -22,11 +22,13 @@ function main() {
   };
 
   page.open(config.url, function(status) {
-    if (status !== "success") {
-        throw 'Unable to load URL ' + config.url;
+    if (status === 'success') {
+      page.render(file);
+      writeJson({file: file});
+    } else {
+      writeJson({error: 'Unable to load URL ' + config.url})
+      console.log('Unable to load URL ' + config.url);
     }
-    page.render(file);
-    writeJson({file: file});
     phantom.exit();
   });
 }

@@ -19,7 +19,7 @@ app.configure('development', function() {
 });
 
 app.get('/', function(request, response) {
-  var url = request.query.url,
+  var url = request.query.url || '',
       width = request.query.width,
       height = request.query.height,
       iamgeName,
@@ -57,5 +57,5 @@ console.log('Reflection listening on port ' + port);
 app.listen(port, host);
 
 function subdomainRegex(domain) {
-  return '(\w+.' + domain + ')';
+  return '(\\w+\\.' + domain + ')';
 }

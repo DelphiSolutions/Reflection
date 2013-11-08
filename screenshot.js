@@ -19,8 +19,10 @@ function takeScreenshot(args) {
       response = args.response,
       output;
 
+  delete args.response;
+
   // Spin off a PhantomJS process and attach event handlers to its outputs
-  childProcess.spawn('phantomjs', ['phantom/rasterize.js', JSON.stringify(args)])
+  childProcess.spawn('phantomjs', ['--ssl-protocol=any', 'phantom/rasterize.js', JSON.stringify(args)])
       .on('close', onExit)
       .stdout.on('data', function(line) {
         output = line;
