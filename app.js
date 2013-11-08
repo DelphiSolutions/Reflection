@@ -8,7 +8,6 @@ var express = require('express'),
     maxWidth = process.env.MAX_WIDTH || 1600,
     permittedDomains = (process.env.PERMITTED_DOMAINS || 'opengov.com').split(','),
     port = process.env.PORT || 3001;
-;
 
 app.configure(function() {
   app.use(express.logger('dev'));
@@ -19,15 +18,18 @@ app.configure('development', function() {
   app.use(express.errorHandler());
 });
 
-app.get('/*.png', function(request, response) {
+app.get('/', function(request, response) {
   var url = request.query.url,
       width = request.query.width,
-      height = request.query.height;
+      height = request.query.height,
+      iamgeName,
+      regexMatch,
       urlRegex;
 
   // Sub domains into the permitted domain regex
   urlRegex = new RegExp('https?://(' + permittedDomains.map(subdomainRegex).join('|') + ')');
-  if (!urlRegex.test(url)) {
+  regexMatch = url.match(urlRegex);
+  if (!regexMatch || regexMatch.length < 2) {
     return response.send(403, 'URL to screenshot must be a property of OpenGov');
   }
 
@@ -38,11 +40,15 @@ app.get('/*.png', function(request, response) {
     height = 640;
   }
 
+  // The file name will be the host where periods are replaced with dashes
+  imageName = regexMatch[1].replace('.', '-') + '-screenshot.png';
+
   // Pass the params off to the Phantom queue
   screenshot.queue({
     url: url,
     width: width,
     height: height,
+    imageName: imageName,
     response: response
   });
 });

@@ -3,9 +3,9 @@ Screenshot taking API built on top of Node(+ Express) and Phantom.
 
 ## Usage
 
-`GET /<whatever_you_want>.png?[width=<n_pixels>]&[height=<n_pixels>]&url=http[s]://<deployment>.opengov.com/<path>`
+`GET /?[width=<n_pixels>]&[height=<n_pixels>]&url=http[s]://<deployment>.opengov.com/<path>`
 
-Responds with PNG image data for the screenshot that was requested.
+The request Responds with PNG image data for the screenshot that was requested.  A `Content-Disposition` header is included in the response so that a browser prompts the user to download the file.
 	
 ### Defaults
 

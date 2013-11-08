@@ -14,10 +14,11 @@ queue = async.queue(takeScreenshot, 5);
 exports.queue = queue.push  // Make this symbol visible so other modules can queue
 
 function takeScreenshot(args) {
-  var output,
-      response;
+  var imageName = args.imageName,
+      response = args.response,
+      output;
 
-  response = args.response;
+  delete args.imageName;
   delete args.response;
 
   // Spin off a PhantomJS process and attach event handlers to its outputs
@@ -49,6 +50,7 @@ function takeScreenshot(args) {
       console.log('Produced screenshot for URL `' + args.url + '`');
 
       // Success!  Return image data to the browser...
+      response.setHeader('Content-Disposition', 'attachment; filename="' + imageName + '"');
       response.setHeader('Content-Type', 'image/png');
       response.send(data);
     });
