@@ -6,6 +6,7 @@ var express = require('express'),
     host = process.env.HOST || 'localhost',
     maxHeight = process.env.MAX_HEIGHT || 1200,
     maxWidth = process.env.MAX_WIDTH || 1600,
+    permittedDomains = (process.env.PERMITTED_DOMAINS || 'opengov.com').split(','),
     port = process.env.PORT || 3001;
 ;
 
@@ -22,10 +23,12 @@ app.get('/*.png', function(request, response) {
   var url = request.query.url,
       width = request.query.width,
       height = request.query.height;
+      urlRegex;
 
-  if (!/^https?:\/\/\w+.opengov.com/i.test(url)) {
-    response.send(403, 'URL to screenshot must be a property of OpenGov');
-    return;
+  // Sub domains into the permitted domain regex
+  urlRegex = new RegExp('https?://(' + permittedDomains.map(subdomainRegex).join('|') + ')');
+  if (!urlRegex.test(url)) {
+    return response.send(403, 'URL to screenshot must be a property of OpenGov');
   }
 
   if (!width || width <= 0 || width > maxWidth) {
@@ -46,3 +49,7 @@ app.get('/*.png', function(request, response) {
 
 console.log('Reflection listening on port ' + port);
 app.listen(port, host);
+
+function subdomainRegex(domain) {
+  return '(\w+.' + domain + ')';
+}
