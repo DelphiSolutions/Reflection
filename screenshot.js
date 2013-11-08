@@ -5,12 +5,13 @@
  */
 
 var async = require('async'),
-    child_process = require('child_process'),
+    childProcess = require('child_process'),
     fs = require('fs'),
+    nProcesses = process.env.N_PROCESSES || 4,
     queue;
 
-// Queue to ensure a maximum of 5 PhantomJS processes running concurrently
-queue = async.queue(takeScreenshot, 5);
+// Queue to put a ceiling on the number of PhantomJS processes running concurrently
+queue = async.queue(takeScreenshot, nProcesses);
 exports.queue = queue.push  // Make this symbol visible so other modules can queue
 
 function takeScreenshot(args) {
@@ -18,11 +19,8 @@ function takeScreenshot(args) {
       response = args.response,
       output;
 
-  delete args.imageName;
-  delete args.response;
-
   // Spin off a PhantomJS process and attach event handlers to its outputs
-  child_process.spawn('phantomjs', ['phantom/rasterize.js', JSON.stringify(args)])
+  childProcess.spawn('phantomjs', ['phantom/rasterize.js', JSON.stringify(args)])
       .on('close', onExit)
       .stdout.on('data', function(line) {
         output = line;
