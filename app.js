@@ -1,62 +1,43 @@
-
-/**
- * Module dependencies.
- */
-
-// Load dependencies
 var express = require('express'),
-    http = require('http'),
-    path = require('path'),
     fs = require('fs'),
+    path = require('path'),
+    screenshot = require('./screenshot'),
+    app = express(),
+    port = process.env.PORT || 3001;
 
-    // Routes
-    docs = require('./routes/docs'),
-    error = require('./routes/error'),
-    api = require('./routes/export');
-
-// Create the app
-var app = express();
-
-// Load the static files separatley
-app.use(express.static(__dirname + '/public'));
-
-// Load the configuration file
-var config = JSON.parse(fs.readFileSync('config/export.json', 'utf8'));
-
-// Configure the app
 app.configure(function() {
-    app.set('port', process.env.PORT || 3001);
-    app.set('host', process.env.HOST || 'localhost');
-    
-    app.set('views', __dirname + '/views');
-    app.set('view engine', 'hjs');
-    
-    app.use(express.favicon());
-    app.use(express.logger('dev'));
-    app.use(express.bodyParser());
-    app.use(express.methodOverride());
-    app.use(app.router);
-    
-    app.use(require('less-middleware')({ src: __dirname + '/public' }));
-    app.use(express.static(path.join(__dirname, 'public')));
+  app.use(app.router);
 });
 
-// Add the error handler if we are on development environment
 app.configure('development', function() {
-    app.use(express.errorHandler());
+  app.use(express.errorHandler());
 });
 
-// Load the data for the routes
-app.get('/' + config.routes.base + '/:id.:format', api.get);
-app.post('/' + config.routes.base, api.queue);
+app.get('/*.png', function(request, response) {
+  var url = request.query.url,
+      width = request.query.width,
+      height = request.query.height;
 
-// Show the documentation in the index page
-app.get('/', docs.index);
+  if (!/^https?:\/\/\w+.opengov.com/i.test(url)) {
+    response.send(403, 'URL to screenshot must be a property of OpenGov');
+    return;
+  }
 
-// Catch all other routes and throw a 404 error
-app.get('*', error.index);
+  if (!width || width < 0) {
+    width = 960;
+  }
+  if (!height || height < 0) {
+    height = 640;
+  }
 
-// Start the server
-http.createServer(app).listen(app.get('port'), function() {
-    console.log("Express server listening on port " + app.get('port'));
+  // Pass the params off to the Phantom queue
+  screenshot.queue({
+    url: url,
+    width: width,
+    height: height,
+    response: response
+  });
 });
+
+console.log('Reflection listening on port ' + port + '...');
+app.listen(port);
