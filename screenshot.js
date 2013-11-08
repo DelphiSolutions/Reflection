@@ -49,6 +49,8 @@ function takeScreenshot(args) {
         return
       }
 
+      console.log('Produced screenshot for URL `' + args.url + '`');
+
       // Success!  Return image data to the browser...
       response.setHeader('Content-Type', 'image/png');
       response.send(data);
